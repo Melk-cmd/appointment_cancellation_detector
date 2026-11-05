@@ -49,8 +49,8 @@ if __name__ == "__main__":
         df = df.copy()
 
         ## Transform datetime into a number
-        df["ScheduledDay"] = pd.to_datetime(df["ScheduledDay"], yearfirst=True, infer_datetime_format=True)
-        df["AppointmentDay"] = pd.to_datetime(df["AppointmentDay"], yearfirst=True, infer_datetime_format=True)
+        df["ScheduledDay"] = pd.to_datetime(df["ScheduledDay"], yearfirst=True)
+        df["AppointmentDay"] = pd.to_datetime(df["AppointmentDay"], yearfirst=True)
 
         ## Get the difference between scheduled day and appointment
         df["time_difference_between_scheduled_and_appointment"] = (df["AppointmentDay"] - df["ScheduledDay"]).dt.days
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     # Preprocessing 
     categorical_features = ["Gender", "Neighbourhood"] # Select all the columns containing strings
-    categorical_transformer = OneHotEncoder(drop='first', handle_unknown='error', sparse=False)
+    categorical_transformer = OneHotEncoder(drop='first', handle_unknown='error', sparse_output=False)
 
     numerical_feature_mask = ~X_train.columns.isin(["Gender", "Neighbourhood", "ScheduledDay","AppointmentDay"]) # Select all the columns containing anything else than strings
     numerical_features = X_train.columns[numerical_feature_mask]
@@ -97,7 +97,8 @@ if __name__ == "__main__":
             sk_model=model,
             artifact_path="appointment_cancellation_detector",
             registered_model_name="appointment_cancellation_detector_RF",
-            signature=infer_signature(X_train, predictions)
+            signature=infer_signature(X_train, predictions),
+            serialization_format="cloudpickle"
         )
         
     print("...Done!")
